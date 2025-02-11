@@ -1,0 +1,9 @@
+﻿  Servidor_Servicios.cpp
+C:\SFML-3.0.0\include\SFML\System\Exception.hpp(41,47): warning C4275: se ha utilizado una interfaz no de DLL class 'std::runtime_error' como base para la interfaz DLL class 'sf::Exception'
+  (compilando archivo de origen "Servidor_Servicios.cpp")
+  C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\stdexcept(100,19):
+  vea la declaración de 'std::runtime_error'
+  C:\SFML-3.0.0\include\SFML\System\Exception.hpp(41,23):
+  vea la declaración de 'sf::Exception'
+  
+  Servidor_Servicios.vcxproj -> C:\Users\mmayo\Desktop\Shooter2dUDP\Shooter2D\x64\Debug\Servidor_Servicios.exe

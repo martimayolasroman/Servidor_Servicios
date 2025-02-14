@@ -1,0 +1,44 @@
+# Archivos de compilación
+*.obj
+*.o
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.idb
+*.ipch
+*.tlog
+*.log
+*.pch
+*.ilk
+*.sdf
+*.suo
+*.opensdf
+*.VC.db
+
+# Archivos de configuración de Visual Studio
+.vscode/
+.vs/
+*.user
+*.VC.opendb
+
+# Directorios de compilación de Visual Studio
+Debug/
+Release/
+x64/
+x86/
+ipch/
+Build/
+*.vcxproj.user
+*.vcxproj.filters
+
+# Archivos de SFML que no deben subirse
+SFML/bin/
+SFML/lib/
+SFML/include/
+
+# Archivos temporales
+*.tmp
+*.log
+*.swp
+*.DS_Store

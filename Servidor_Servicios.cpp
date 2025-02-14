@@ -1,34 +1,104 @@
 
 
+
+#include "Servidor_Servicios.h"
 #include <iostream>
-#include <SFML/Graphics.hpp>
 
-int main()
-{
-    sf::RenderWindow window(sf::VideoMode({ 200, 200 }), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+void Servidor_Servicios::handleClient(sf::TcpSocket& socket, const std::string& USER_DB) {
+	sf::Packet packet;
+	std::string receivedData;
+	
 
-    while (window.isOpen())
-    {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-                window.close();
-        }
+	// Recibir el paquete del cliente
+	sf::Socket::Status status = socket.receive(packet);
+	if (status != sf::Socket::Status::Done) {
+		std::cerr << "Error recibiendo datos del cliente.  "<< std::endl;
+		return;
+	}
 
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
+	// Verificar que el paquete no está vacío
+		if (packet.getDataSize() == 0) {
+			std::cerr << "Error: Paquete recibido está vacío." << std::endl;
+			return;
+		}
+
+		// Extraer los datos del paquete
+		if (!(packet >> receivedData)) {
+			std::cerr << "Error al leer los datos del paquete recibido." << std::endl;
+			return;
+		}
+
+		std::cout << "Datos recibidos del cliente: " << receivedData << std::endl;
+
+		// Procesar la acción (LOGIN o REGISTER)
+		sf::Packet response;
+		std::string responseMessage;
+		std::string action, user, pass;
+
+		// Separar los datos enviados (Formato esperado: "REGISTER:usuario:contraseña")
+		size_t pos1 = receivedData.find(":");
+		size_t pos2 = receivedData.find(":", pos1 + 1);
+
+		if(pos1 == std::string::npos || pos2 == std::string::npos) {
+			std::cerr << "Error: Formato de datos incorrecto." << std::endl;
+			responseMessage = "ERROR_FORMAT";
+		}
+		else {
+
+			action = receivedData.substr(0, pos1);
+			user = receivedData.substr(pos1 + 1, pos2 - pos1 - 1);
+			pass = receivedData.substr(pos2 + 1);
+
+			if (action == "REGISTER") {
+				//Registrar usuario
+				std::ofstream file(USER_DB, std::ios::app);
+				if (file) {
+					file << user << ":" << pass << "\n";
+					//file.close();
+					response << "REGISTER_OK";
+					std::cout << "Usuario registrado correctamente: " << user << std::endl;
+				}
+				else {
+
+					response << "REGISTER_FAIL";
+					std::cerr << "Error al registrar usuario." << std::endl;
+
+
+				}
+
+			}
+			else if (action == "LOGIN") {
+				//Verificar credenciales
+				std::ifstream file(USER_DB);
+				std::string line;
+				bool found = false;
+				while (std::getline(file, line)) {
+					if (line == user + ":" + pass) {
+						found = true;
+						break;
+					}
+				}
+
+				responseMessage = (found ? "LOGIN_OK" : "LOGIN_FAIL");
+			}
+			else{
+				responseMessage = "ERROR_ACTION";
+			}
+
+		}
+
+
+
+		response << responseMessage;
+
+		// Enviar respuesta
+		if (socket.send(response) != sf::Socket::Status::Done) {
+			std::cerr << "Error enviando respuesta al cliente." << std::endl;
+		}
+		else {
+			std::cout << "Respuesta enviada al cliente: " << responseMessage << std::endl;
+		}
+	
 }
 
-// Ejecutar programa: Ctrl + F5 o menÃº Depurar > Iniciar sin depurar
-// Depurar programa: F5 o menÃº Depurar > Iniciar depuraciÃ³n
 
-// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
-//   2. Use la ventana de Team Explorer para conectar con el control de cÃ³digo fuente
-//   3. Use la ventana de salida para ver la salida de compilaciÃ³n y otros mensajes
-//   4. Use la ventana Lista de errores para ver los errores
-//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de cÃ³digo, o a Proyecto > Agregar elemento existente para agregar archivos de cÃ³digo existentes al proyecto
-//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln
